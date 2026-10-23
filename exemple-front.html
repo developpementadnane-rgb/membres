@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Formulaire de contact</title>
+</head>
+<body>
+  <h2>Contactez-nous</h2>
+  <form id="contactForm">
+    <label for="destinataire">Adresse email</label><br />
+    <input type="email" id="destinataire" required /><br /><br />
+    <label for="nom">Votre nom</label><br />
+    <input type="text" id="nom" required /><br /><br />
+    <label for="message">Message</label><br />
+    <textarea id="message" required></textarea><br /><br />
+    <button type="submit">Envoyer</button>
+  </form>
+  <p id="statut" role="status"></p>
+
+  <hr />
+  <h3>Confirmer avec le PIN reçu par email</h3>
+  <label for="pin">Code à 6 chiffres</label><br />
+  <input type="text" id="pin" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" />
+  <button id="btnVerify" type="button">Confirmer</button>
+  <p id="statutPin" role="status"></p>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    let lastRecipient = "";
+
+    $("contactForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const destinataire = $("destinataire").value.trim();
+      lastRecipient = destinataire;
+      $("statut").textContent = "Envoi en cours...";
+
+      try {
+        const response = await fetch("/api/send-email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            destinataire,
+            sujet: "Nouveau message depuis le site",
+            nom: $("nom").value.trim(),
+            message: $("message").value,
+          }),
+        });
+        const data = await response.json();
+        $("statut").textContent = data.ok ? "Message envoyé ! Vérifiez votre boîte mail." : "Erreur : " + data.error;
+      } catch {
+        $("statut").textContent = "Erreur réseau.";
+      }
+    });
+
+    $("btnVerify").addEventListener("click", async () => {
+      $("statutPin").textContent = "Vérification en cours...";
+      try {
+        const response = await fetch("/api/verify-pin", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ destinataire: lastRecipient || $("destinataire").value.trim(), pin: $("pin").value.trim() }),
+        });
+        const data = await response.json();
+        $("statutPin").textContent = data.ok ? data.message : "Erreur : " + data.error;
+      } catch {
+        $("statutPin").textContent = "Erreur réseau.";
+      }
+    });
+  </script>
+</body>
+</html>

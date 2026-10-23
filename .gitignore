@@ -1,0 +1,42 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Capacitor Android platform: generated fresh by the CI workflow
+# (npx cap add android) so it never needs to be committed.
+/android
+.gradle/
+*.apk
+*.aab
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+.config/
+# SECURITY FIX: this used to be "!.env", which force-committed the
+# real .env (with live Supabase service_role key, JWT_SECRET and
+# SMTP_PASS in plain text) to the repository -- see the note at the
+# top of .env.example. .env is now correctly ignored like any other
+# repo. If you still have the old .env committed in your git history,
+# rotating the secrets above is not optional: they must be treated as
+# permanently compromised even after this fix.
+.env
+.env.local
